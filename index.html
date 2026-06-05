@@ -1,0 +1,1875 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZAS Mensajería — Solicitar Servicio</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Exo+2:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --navy:   #07111f;
+  --deep:   #0a1a2e;
+  --mid:    #0d2540;
+  --ink:    #e8f4ff;
+  --soft:   #b0cde0;
+  --muted:  #5a8aa8;
+  --border: rgba(0,212,255,0.13);
+  --border2:rgba(0,212,255,0.22);
+  --cyan:   #00d4ff;
+  --cyan2:  #00a8cc;
+  --neon:   #c8f000;
+  --neon2:  #a0c800;
+  --green:  #00e899;
+  --amber:  #ffcc00;
+  --red:    #ff4466;
+  --card:   #0a1a2e;
+  --fd:     'Rajdhani', sans-serif;
+  --fb:     'Exo 2', sans-serif;
+  --spring: cubic-bezier(0.34,1.56,0.64,1);
+  --smooth: cubic-bezier(0.4,0,0.2,1);
+}
+
+html { font-size: 16px; }
+
+body {
+  font-family: var(--fb);
+  background: var(--navy);
+  color: var(--ink);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Grid background */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(0,212,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,255,0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+  animation: gridDrift 20s linear infinite;
+  pointer-events: none; z-index: 0;
+}
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -5%, rgba(0,212,255,0.09) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 100% 100%, rgba(200,240,0,0.04) 0%, transparent 60%);
+  pointer-events: none; z-index: 0;
+}
+@keyframes gridDrift { from{background-position:0 0} to{background-position:40px 40px} }
+
+/* NAV */
+nav {
+  width: 100%;
+  padding: 14px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  background: rgba(7,17,31,0.92);
+  backdrop-filter: blur(12px);
+  position: sticky; top: 0;
+  z-index: 100;
+}
+.nav-logo {
+  font-family: var(--fd);
+  font-size: 20px; font-weight: 700;
+  letter-spacing: 3px; text-transform: uppercase;
+  background: linear-gradient(90deg, var(--cyan), #fff, var(--neon));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.nav-tag {
+  font-size: 12px; color: var(--muted);
+  letter-spacing: 0.08em; text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* PAGE */
+.page {
+  width: 100%;
+  max-width: 560px;
+  padding: 40px 20px 80px;
+  position: relative; z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* CARD */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+}
+.card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--cyan), var(--neon));
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.card:focus-within::before { opacity: 1; }
+
+.card-title {
+  font-family: var(--fd);
+  font-size: 15px; font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--cyan); margin-bottom: 16px;
+  display: flex; align-items: center; gap: 8px;
+}
+
+/* FIELDS */
+.field { margin-bottom: 14px; }
+.field:last-child { margin-bottom: 0; }
+.label {
+  font-size: 11px; font-weight: 500;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 7px; display: block;
+}
+.input, .select, .textarea {
+  width: 100%;
+  background: rgba(255,255,255,0.03);
+  border: 1.5px solid var(--border2);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-family: var(--fb);
+  font-size: 14px; color: var(--ink);
+  transition: all 0.2s;
+  appearance: none;
+}
+.input:focus, .select:focus, .textarea:focus {
+  outline: none;
+  border-color: var(--cyan);
+  background: rgba(0,212,255,0.04);
+  box-shadow: 0 0 0 3px rgba(0,212,255,0.08);
+}
+.input::placeholder, .textarea::placeholder { color: var(--muted); }
+.select {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%235a8aa8' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-color: rgba(255,255,255,0.03);
+}
+.select option { background: var(--deep); }
+.textarea { resize: vertical; min-height: 72px; line-height: 1.5; }
+
+/* ROW */
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* SWAP BUTTON */
+.swap-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px;
+  background: rgba(0,212,255,0.08);
+  border: 1.5px solid var(--border2);
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 18px;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  align-self: flex-end;
+  margin-bottom: 14px;
+}
+.swap-btn:hover { background: rgba(0,212,255,0.15); border-color: var(--cyan); }
+.swap-btn:active { transform: rotate(180deg); }
+
+.route-row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 10px;
+  align-items: start;
+}
+
+/* ADDRESS ROW */
+.addr-row {
+  display: none;
+  margin-top: 8px;
+  animation: fadeIn 0.25s var(--spring);
+}
+.addr-row.visible { display: block; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+
+/* CALC BUTTON */
+
+.calc-btn:hover {
+  background: linear-gradient(135deg, rgba(0,212,255,0.25), rgba(0,212,255,0.15));
+  border-color: var(--cyan);
+  box-shadow: 0 0 20px rgba(0,212,255,0.15);
+  transform: translateY(-1px);
+}
+.calc-btn:active { transform: scale(0.98); }
+
+/* RESULT CARD */
+
+#resultCard.visible { display: block; }
+
+.result-box-val.cyan { color: var(--cyan); }
+.result-box-val.neon { color: var(--neon); }
+.result-box-val.green { color: var(--green); }
+
+/* SOLICITAR CARD */
+#solicitarCard { animation: fadeIn 0.4s var(--spring); }
+#solicitarCard.visible { display: block; }
+
+/* SEND BUTTON */
+.send-btn {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, var(--neon), var(--neon2));
+  border: none;
+  border-radius: 14px;
+  font-family: var(--fd);
+  font-size: 17px; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase;
+  color: var(--navy);
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  margin-top: 16px;
+}
+.send-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(200,240,0,0.3); }
+.send-btn:active { transform: scale(0.98); }
+.send-btn:disabled { opacity: 0.5; pointer-events: none; }
+
+/* SUCCESS */
+#successCard {
+  display: none;
+  text-align: center;
+  padding: 40px 24px;
+  animation: fadeIn 0.5s var(--spring);
+}
+#successCard.visible { display: block; }
+.success-icon { font-size: 52px; margin-bottom: 16px; }
+.success-title {
+  font-family: var(--fd);
+  font-size: 24px; font-weight: 700;
+  color: var(--green); margin-bottom: 10px;
+}
+.success-text { font-size: 14px; color: var(--soft); line-height: 1.7; }
+.new-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  margin-top: 24px; padding: 12px 28px;
+  background: rgba(0,212,255,0.1);
+  border: 1.5px solid var(--border2);
+  border-radius: 12px;
+  font-family: var(--fd); font-size: 14px; font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--cyan); cursor: pointer;
+  transition: all 0.2s;
+}
+.new-btn:hover { background: rgba(0,212,255,0.2); }
+
+/* ERROR */
+.field-error {
+  font-size: 12px; color: var(--red);
+  margin-top: 5px; display: none;
+}
+
+
+/* GEO BUTTONS */
+.geo-btn {
+  flex: 1;
+  padding: 9px 8px;
+  background: rgba(0,212,255,0.06);
+  border: 1.5px solid var(--border2);
+  border-radius: 10px;
+  font-family: var(--fb);
+  font-size: 12px; font-weight: 500;
+  color: var(--soft); cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.geo-btn:hover { background: rgba(0,212,255,0.14); color: var(--cyan); border-color: var(--cyan); }
+.geo-status-row { min-height: 20px; margin-top: 6px; }
+.geo-status { font-size: 12px; color: var(--muted); }
+.geo-status.ok   { color: var(--green); }
+.geo-status.err  { color: var(--red); }
+.geo-status.spin { color: var(--amber); }
+
+/* PAGE TABS */
+.page-tabs {
+  display: flex;
+  gap: 0;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 5px;
+  width: 100%;
+}
+.page-tab {
+  flex: 1;
+  padding: 12px 8px;
+  background: transparent;
+  border: none;
+  border-radius: 12px;
+  font-family: var(--fd);
+  font-size: 15px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s var(--spring);
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.page-tab:hover:not(.active) { color: var(--soft); }
+.page-tab.active {
+  background: rgba(0,212,255,0.10);
+  color: var(--cyan);
+  box-shadow: 0 0 0 1.5px var(--cyan) inset;
+}
+
+/* RESULT BOXES (cotizar) */
+.result-grid {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 12px;
+  margin-bottom: 0;
+}
+.result-box {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 12px;
+  text-align: center;
+}
+.result-box-label {
+  font-size: 10px; text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--muted);
+  margin-bottom: 6px;
+}
+.result-box-val {
+  font-family: var(--fd);
+  font-size: 22px; font-weight: 700;
+}
+.result-box-val.cyan { color: var(--cyan); }
+.result-box-val.neon { color: var(--neon); }
+.result-box-val.green { color: var(--green); }
+.map-modal-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  background: var(--deep);
+  border-radius: 0 0 20px 20px;
+  flex-shrink: 0;
+}
+.map-selected-info {
+  flex: 1;
+  font-size: 12px;
+  color: var(--soft);
+  line-height: 1.4;
+}
+.map-confirm-btn {
+  padding: 10px 22px;
+  background: linear-gradient(135deg, var(--cyan), var(--cyan2));
+  border: none;
+  border-radius: 10px;
+  font-family: var(--fd);
+  font-size: 14px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase;
+  color: var(--navy);
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.map-confirm-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,212,255,0.3); }
+.map-confirm-btn:disabled { opacity: 0.35; pointer-events: none; cursor: default; }
+
+.result-aprox {
+  font-size: 11px; color: var(--muted);
+  text-align: center; margin-top: 10px;
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+}
+.calc-btn {
+  width: 100%; padding: 15px;
+  background: linear-gradient(135deg,rgba(0,212,255,0.15),rgba(0,212,255,0.08));
+  border: 1.5px solid var(--border2); border-radius: 14px;
+  font-family: var(--fd); font-size: 16px; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase;
+  color: var(--cyan); cursor: pointer; transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  margin-top: 14px;
+}
+.calc-btn:hover {
+  background: linear-gradient(135deg,rgba(0,212,255,0.25),rgba(0,212,255,0.15));
+  border-color: var(--cyan); box-shadow: 0 0 20px rgba(0,212,255,0.15);
+  transform: translateY(-1px);
+}
+.calc-btn:active { transform: scale(0.98); }
+
+@media(max-width:480px) {
+  .result-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* IDA Y REGRESO SWITCH */
+.switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: rgba(255,255,255,0.03);
+  border: 1.5px solid var(--border2);
+  border-radius: 14px;
+  padding: 14px 18px;
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+}
+.switch-row:hover {
+  border-color: rgba(0,212,255,0.3);
+  background: rgba(0,212,255,0.04);
+}
+.switch-row.active {
+  border-color: var(--cyan);
+  background: rgba(0,212,255,0.07);
+}
+.switch-label {
+  font-size: 14px; font-weight: 600;
+  color: var(--ink); margin-bottom: 3px;
+}
+.switch-sub {
+  font-size: 11px; color: var(--muted); line-height: 1.4;
+}
+.switch-track {
+  width: 46px; height: 26px;
+  border-radius: 13px;
+  background: rgba(255,255,255,0.08);
+  border: 1.5px solid var(--border2);
+  position: relative;
+  flex-shrink: 0;
+  transition: all 0.25s var(--spring);
+}
+.switch-thumb {
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--muted);
+  transition: all 0.25s var(--spring);
+}
+.switch-row.active .switch-track {
+  background: rgba(0,212,255,0.2);
+  border-color: var(--cyan);
+}
+.switch-row.active .switch-thumb {
+  left: 23px;
+  background: var(--cyan);
+  box-shadow: 0 0 8px rgba(0,212,255,0.5);
+}
+
+/* FONDO MONEDA */
+.fondo-moneda-tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1.5px solid var(--border2);
+  border-radius: 12px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.fondo-moneda-btn {
+  padding: 0 16px;
+  flex: 1;
+  background: rgba(255,255,255,0.03);
+  border: none;
+  font-family: var(--fd);
+  font-size: 13px; font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.18s;
+  border-bottom: 1px solid var(--border2);
+}
+.fondo-moneda-btn:last-child { border-bottom: none; }
+.fondo-moneda-btn:hover { background: rgba(0,212,255,0.07); color: var(--soft); }
+.fondo-moneda-btn.active {
+  background: rgba(0,212,255,0.12);
+  color: var(--cyan);
+}
+.fondo-moneda-btn.active-usd {
+  background: rgba(0,232,153,0.10);
+  color: var(--green);
+}
+
+/* FONDO TOGGLE */
+.fondo-toggle {
+  flex: 2;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255,255,255,0.03);
+  border: 1.5px solid var(--border2);
+  border-radius: 12px;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+}
+.fondo-toggle:hover { border-color: var(--cyan); background: rgba(0,212,255,0.04); }
+.fondo-toggle.active { border-color: var(--neon); background: rgba(200,240,0,0.06); }
+.fondo-track {
+  width: 40px; height: 22px;
+  border-radius: 11px;
+  background: rgba(255,255,255,0.1);
+  border: 1.5px solid var(--border2);
+  position: relative;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+.fondo-track::after {
+  content: '';
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--muted);
+  transition: all 0.2s var(--spring);
+}
+.fondo-toggle.active .fondo-track {
+  background: rgba(200,240,0,0.2);
+  border-color: var(--neon);
+}
+.fondo-toggle.active .fondo-track::after {
+  left: 20px;
+  background: var(--neon);
+}
+
+/* TOAST */
+#toast {
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--deep);
+  border: 1px solid var(--border2);
+  border-radius: 12px;
+  padding: 12px 20px;
+  font-size: 13px; font-weight: 500;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  opacity: 0; pointer-events: none;
+  transition: all 0.3s var(--spring);
+  z-index: 9999; white-space: nowrap;
+}
+#toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+#toast.success { color: var(--green); border-color: rgba(0,232,153,0.3); }
+#toast.error   { color: var(--red);   border-color: rgba(255,68,102,0.3); }
+#toast.info    { color: var(--cyan);  border-color: rgba(0,212,255,0.3); }
+
+@media (max-width: 480px) {
+  .page { padding: 24px 14px 60px; }
+  .card { padding: 18px 16px; }
+  .result-grid { grid-template-columns: 1fr 1fr; }
+  .row { grid-template-columns: 1fr; }
+  .route-row { grid-template-columns: 1fr; }
+  .swap-btn { display: none; }
+}
+.map-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(14,17,23,0.6);
+    backdrop-filter: blur(4px);
+    z-index: 300;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .map-modal-overlay.open { opacity: 1; pointer-events: all; }
+  .map-modal {
+    background: var(--deep, #0a1a2e);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    width: 100%;
+    max-width: 640px;
+    max-height: 92vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 24px 80px rgba(14,17,23,0.35);
+    transform: translateY(20px) scale(0.97);
+    transition: transform 0.35s var(--ease-spring), opacity 0.3s;
+    opacity: 0;
+  }
+  .map-modal-overlay.open .map-modal { transform: translateY(0) scale(1); opacity: 1; }
+  .map-modal-header {
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+  .map-modal-title { font-family: var(--font-display); font-size: 16px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--cyan, #00d4ff); }
+  .map-modal-subtitle { font-size: 12px; color: var(--ink-muted); margin-top: 2px; }
+  .map-search-row {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .map-search-input {
+    flex: 1;
+    background: var(--surface);
+    border: 1.5px solid var(--border-strong);
+    border-radius: 10px;
+    padding: 9px 13px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: var(--ink);
+    transition: border-color 0.2s;
+    min-width: 0;
+  }
+  .map-search-input::placeholder { color: var(--ink-muted); }
+  .map-search-input:focus { outline: none; border-color: var(--cyan, #00d4ff); box-shadow: 0 0 0 3px rgba(0,212,255,0.08); }
+  .map-search-btn {
+    padding: 9px 15px;
+    background: var(--cyan, #00d4ff);
+    color: var(--navy, #07111f);
+    border: none;
+    border-radius: 10px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s;
+  }
+  .map-search-btn:hover { background: var(--cyan2, #00a8cc); }
+  #mapContainer { flex: 1; min-height: 300px; position: relative; }
+  .map-pin-hint {
+    position: absolute;
+    top: 10px; left: 50%; transform: translateX(-50%);
+    background: rgba(14,17,23,0.78);
+    color: #fff; font-size: 12px;
+    padding: 6px 14px; border-radius: 20px;
+    z-index: 1000; pointer-events: none; white-space: nowrap;
+  }
+  .map-modal-footer {
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+  }
+  .map-selected-info { flex: 1; font-size: 13px; color: var(--ink-muted); min-width: 0; }
+  .map-se
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">⚡ ZAS</div>
+  <div class="nav-tag">Servicio de Mensajería · La Habana</div>
+</nav>
+
+<div class="page">
+
+<!-- ══ TAB BAR ══ -->
+<div class="page-tabs">
+  <button class="page-tab active" id="tab-cotizar" onclick="showTab('cotizar')">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>
+    Cotizar mensajería
+  </button>
+  <button class="page-tab" id="tab-solicitar" onclick="showTab('solicitar')">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+    Solicitar envío
+  </button>
+</div>
+
+<!-- ══ VIEW: SOLICITAR ══ -->
+<div id="view-solicitar" style="display:none;">
+
+  <!-- RESUMEN COTIZACIÓN (se muestra si viene de cotizar) -->
+  <div class="card" id="cotizar-summary" style="display:none;">
+    <div class="card-title">💰 Resumen de cotización</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;">
+      <div class="result-box">
+        <div class="result-box-label">Origen</div>
+        <div style="font-family:var(--fd);font-size:13px;font-weight:700;color:var(--ink);line-height:1.3;" id="sum-origin">—</div>
+      </div>
+      <div class="result-box">
+        <div class="result-box-label">Destino</div>
+        <div style="font-family:var(--fd);font-size:13px;font-weight:700;color:var(--ink);line-height:1.3;" id="sum-dest">—</div>
+      </div>
+      <div class="result-box">
+        <div class="result-box-label">Distancia</div>
+        <div class="result-box-val cyan" id="sum-dist">—</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;">km</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(200,240,0,0.06);border:1.5px solid rgba(200,240,0,0.2);border-radius:14px;padding:14px 18px;">
+      <div>
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:4px;">Tarifa estimada</div>
+        <div style="font-family:var(--fd);font-size:28px;font-weight:700;color:var(--neon);" id="sum-price">—</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;">CUP · aproximado</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:11px;color:var(--muted);">Tiempo est.</div>
+        <div style="font-family:var(--fd);font-size:28px;font-weight:700;color:var(--green);" id="sum-time">—</div>
+        <div style="font-size:11px;color:var(--muted);">min</div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:10px;">ℹ️ Tarifa sujeta a confirmación por el operador</div>
+  </div>
+
+  <!-- RUTA -->
+  <div class="card">
+    <div class="card-title">📍 Ruta del envío</div>
+
+    <div class="route-row">
+      <div>
+        <div class="field">
+          <label class="label">Municipio origen</label>
+          <select class="select" id="sel-origin" onchange="onMunicipioChange('origin')">
+            <option value="">Selecciona...</option>
+          </select>
+        </div>
+        <div class="addr-row" id="addr-row-origin">
+          <label class="label">Dirección exacta de recogida <span style="color:var(--red)">*</span></label>
+          <input class="input" id="addr-origin" type="text"
+            placeholder="Calle, número, entre calles..."
+             />
+        </div>
+      </div>
+
+      <button class="swap-btn" onclick="swapMunicipios()" title="Intercambiar">⇅</button>
+
+      <div>
+        <div class="field">
+          <label class="label">Municipio destino</label>
+          <select class="select" id="sel-dest" onchange="onMunicipioChange('destination')">
+            <option value="">Selecciona...</option>
+          </select>
+        </div>
+        <div class="addr-row" id="addr-row-dest">
+          <label class="label">Dirección exacta de entrega <span style="color:var(--red)">*</span></label>
+          <input class="input" id="addr-dest" type="text"
+            placeholder="Calle, número, entre calles..."
+             />
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SOLICITAR -->
+  <div class="card" id="solicitarCard" style="display:block;">
+    <div class="card-title">📦 Datos del envío</div>
+
+    <!-- Nombre -->
+    <div class="field">
+      <label class="label">👤 Nombre completo <span style="color:var(--red)">*</span></label>
+      <input class="input" id="f-nombre" type="text" placeholder="Tu nombre completo" />
+    </div>
+
+    <!-- Teléfono -->
+    <div class="field">
+      <label class="label">📱 Teléfono WhatsApp <span style="color:var(--red)">*</span></label>
+      <div style="display:flex;align-items:center;gap:0;">
+        <span style="padding:12px 14px;background:rgba(255,255,255,0.03);border:1.5px solid var(--border2);border-right:none;border-radius:12px 0 0 12px;font-size:14px;color:var(--muted);white-space:nowrap;flex-shrink:0;">🇨🇺 +53</span>
+        <input class="input" id="f-tel" type="tel" placeholder="5XXXXXXX" maxlength="8"
+          style="border-radius:0 12px 12px 0;border-left:none;"
+          oninput="this.value=this.value.replace(/[^0-9]/g,'')" />
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:5px;">8 dígitos sin el 53 — Ej: 51234567</div>
+    </div>
+
+    <!-- Qué se envía -->
+    <div class="field">
+      <label class="label">📦 ¿Qué se envía? <span style="color:var(--red)">*</span></label>
+      <input class="input" id="f-objeto" type="text"
+        placeholder="Ej: documentos, paquete, medicamentos..." />
+    </div>
+
+    <!-- Fecha -->
+    <div class="field">
+      <label class="label">📅 Fecha del servicio <span style="color:var(--red)">*</span></label>
+      <input class="input" id="f-fecha" type="date" />
+    </div>
+
+    <!-- Fondo del envío -->
+    <div class="field">
+      <label class="label">💰 Fondo del envío <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;">(opcional)</span></label>
+      <div style="display:flex;gap:8px;align-items:stretch;">
+        <div class="fondo-moneda-tabs" id="fondoMonedaTabs">
+          <button class="fondo-moneda-btn" id="btn-cup" onclick="selectMoneda('CUP')">CUP</button>
+          <button class="fondo-moneda-btn" id="btn-usd" onclick="selectMoneda('USD')">USD</button>
+        </div>
+        <div style="position:relative;flex:1;">
+          <span id="fondoSimbol" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px;pointer-events:none;">$</span>
+          <input class="input" id="f-fondo-monto" type="number" min="0" placeholder="0.00"
+            style="padding-left:28px;" oninput="onFondoInput()" />
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:6px;">Dinero que lleva el mensajero para pago o cobro</div>
+    </div>
+
+    <!-- Ida y regreso -->
+    <div class="field">
+      <div class="switch-row" id="idaRegresoRow" onclick="toggleIdaRegreso()">
+        <div>
+          <div class="switch-label">🔄 Ida y regreso</div>
+          <div class="switch-sub">El mensajero regresa al origen después de entregar</div>
+        </div>
+        <div class="switch-track" id="idaRegresoTrack">
+          <div class="switch-thumb" id="idaRegresoThumb"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nota adicional -->
+    <div class="field">
+      <label class="label">📝 Nota adicional (opcional)</label>
+      <textarea class="textarea" id="f-nota" placeholder="Instrucciones especiales, referencias, etc..."></textarea>
+    </div>
+
+    <button class="send-btn" id="sendBtn" onclick="enviar()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9l20-7z"/>
+      </svg>
+      Enviar solicitud
+    </button>
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="card" id="successCard">
+    <div class="success-icon">✅</div>
+    <div class="success-title">¡Solicitud enviada!</div>
+    <div class="success-text">
+      Tu solicitud fue recibida correctamente.<br>
+      Nos pondremos en contacto contigo pronto.
+    </div>
+    <button class="new-btn" onclick="nuevaSolicitud()">
+      + Nueva solicitud
+    </button>
+  </div>
+
+</div><!-- /view-solicitar -->
+
+<!-- ══ VIEW: COTIZAR ══ -->
+<div id="view-cotizar" style="width:100%;">
+
+  <div class="card">
+    <div class="card-title">📍 Ruta a cotizar</div>
+
+    <!-- ORIGEN -->
+    <div class="field">
+      <label class="label">Municipio origen</label>
+      <select class="select" id="c-sel-origin" onchange="onCotizarMunicipioChange('origin')">
+        <option value="">Selecciona...</option>
+      </select>
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <button class="geo-btn" onclick="openMapModal('c-origin')">
+          📍 Marcar en el mapa
+        </button>
+      </div>
+      <div class="geo-status-row">
+        <span class="geo-status" id="c-geo-status-origin"></span>
+      </div>
+    </div>
+
+    <button onclick="swapCotizar()" style="display:block;margin:0 auto 4px;padding:7px 22px;background:linear-gradient(135deg,rgba(0,212,255,0.15),rgba(0,212,255,0.08));border:1.5px solid var(--border2);border-radius:12px;font-size:18px;color:var(--cyan);cursor:pointer;transition:background 0.2s,border-color 0.2s,box-shadow 0.2s;" onmouseover="this.style.background='linear-gradient(135deg,rgba(0,212,255,0.25),rgba(0,212,255,0.15))';this.style.borderColor='var(--cyan)';this.style.boxShadow='0 0 20px rgba(0,212,255,0.15)'" onmouseout="this.style.background='linear-gradient(135deg,rgba(0,212,255,0.15),rgba(0,212,255,0.08))';this.style.borderColor='var(--border2)';this.style.boxShadow='none'">⇅</button>
+
+    <!-- DESTINO -->
+    <div class="field">
+      <label class="label">Municipio destino</label>
+      <select class="select" id="c-sel-dest" onchange="onCotizarMunicipioChange('destination')">
+        <option value="">Selecciona...</option>
+      </select>
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <button class="geo-btn" onclick="openMapModal('c-destination')">
+          📍 Marcar en el mapa
+        </button>
+      </div>
+      <div class="geo-status-row">
+        <span class="geo-status" id="c-geo-status-destination"></span>
+      </div>
+    </div>
+
+    <button class="calc-btn" onclick="cotizar()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <rect x="4" y="2" width="16" height="20" rx="2"/>
+        <line x1="8" y1="6" x2="16" y2="6"/>
+        <line x1="8" y1="10" x2="16" y2="10"/>
+        <line x1="8" y1="14" x2="12" y2="14"/>
+      </svg>
+      Calcular tarifa
+    </button>
+  </div>
+
+  <!-- Resultado cotización -->
+  <div class="card" id="c-result" style="display:none;">
+    <div class="card-title">💰 Tarifa estimada</div>
+    <div class="result-grid">
+      <div class="result-box">
+        <div class="result-box-label">Distancia</div>
+        <div class="result-box-val cyan" id="c-dist">—</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;">km</div>
+      </div>
+      <div class="result-box">
+        <div class="result-box-label">Tiempo est.</div>
+        <div class="result-box-val green" id="c-time">—</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;">min</div>
+      </div>
+      <div class="result-box">
+        <div class="result-box-label">Tarifa</div>
+        <div class="result-box-val neon" id="c-price">—</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;">CUP</div>
+      </div>
+    </div>
+
+    <button class="send-btn" onclick="irASolicitar()" style="background:linear-gradient(135deg,var(--cyan),var(--cyan2));margin-top:16px;">
+      📦 Solicitar este envío →
+    </button>
+  </div>
+
+</div><!-- /view-cotizar -->
+
+</div>
+
+<div class="map-modal-overlay" id="mapModalOverlay">
+  <div class="map-modal">
+    <div class="map-modal-header">
+      <div>
+        <div class="map-modal-title" id="mapModalTitle">📍 Seleccionar ubicación</div>
+        <div class="map-modal-subtitle">Busca una dirección o toca el mapa para colocar el marcador</div>
+      </div>
+      <button class="modal-close" onclick="closeMapModal()">&#x2715;</button>
+    </div>
+    <div class="map-search-row">
+      <input class="map-search-input" id="mapSearchInput" type="text" placeholder="Buscar calle, lugar... (ej: Obispo, Habana Vieja)" />
+      <button class="map-search-btn" onclick="searchMapAddress()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Buscar
+      </button>
+    </div>
+    <div id="mapContainer">
+      <div class="map-pin-hint" id="mapPinHint">Toca o arrastra el marcador para ajustar</div>
+    </div>
+    <div class="map-modal-footer">
+      <div class="map-selected-info" id="mapSelectedInfo">
+        <span style="color:var(--ink-muted);font-size:12px;">Toca el mapa para seleccionar un punto</span>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <button class="geo-btn" id="mapGpsBtn" onclick="useGpsInMap()" style="flex-shrink:0;font-size:12px;padding:8px 13px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8" stroke-dasharray="2 3"/></svg>
+          Mi ubicación
+        </button>
+        <button class="geo-btn" onclick="togglePastePanel()" id="pasteToggleBtn" style="flex-shrink:0;font-size:12px;padding:8px 13px;background:rgba(200,240,0,0.07);border-color:rgba(200,240,0,0.25);color:var(--neon);">
+          📋 Pegar ubicación
+        </button>
+      </div>
+      <button class="map-confirm-btn" id="mapConfirmBtn" disabled onclick="confirmMapSelection()">Confirmar</button>
+    </div>
+
+    <!-- PASTE LOCATION PANEL -->
+    <div id="pasteLocationPanel" style="display:none;padding:12px 16px 14px;border-top:1px solid var(--border);background:rgba(200,240,0,0.03);">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px;letter-spacing:0.05em;">
+        Pega el enlace de Google Maps, WhatsApp o coordenadas:
+      </div>
+      <div style="display:flex;gap:8px;">
+        <input id="pasteLocationInput" type="text"
+          placeholder="https://maps.google.com/... o 23.1360, -82.3710"
+          style="flex:1;background:rgba(255,255,255,0.04);border:1.5px solid var(--border2);border-radius:10px;padding:9px 12px;font-size:13px;color:var(--ink);outline:none;font-family:var(--fb);min-width:0;transition:border-color 0.2s;"
+          onfocus="this.style.borderColor='var(--neon)'"
+          onblur="this.style.borderColor='var(--border2)'"
+          onkeydown="if(event.key==='Enter')parsePastedLocation()" />
+        <button onclick="parsePastedLocation()"
+          style="background:rgba(200,240,0,0.14);border:1.5px solid rgba(200,240,0,0.35);border-radius:10px;padding:9px 16px;font-size:13px;color:var(--neon);font-weight:700;cursor:pointer;white-space:nowrap;font-family:var(--fd);letter-spacing:1px;transition:all 0.2s;"
+          onmouseover="this.style.background='rgba(200,240,0,0.24)'"
+          onmouseout="this.style.background='rgba(200,240,0,0.14)'">
+          Usar &#8629;
+        </button>
+      </div>
+      <div id="pasteLocationError" style="font-size:11px;color:var(--red);margin-top:6px;display:none;line-height:1.5;"></div>
+      <div style="font-size:10px;color:var(--muted);margin-top:6px;line-height:1.6;">
+        Acepta: Google Maps &middot; WhatsApp &middot; Apple Maps &middot; Waze &middot; coordenadas crudas
+      </div>
+    </div>
+  </div>
+
+<div id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════
+//  CONFIG
+// ══════════════════════════════════════════════════════
+const SHEETS_URL   = 'https://script.google.com/macros/s/AKfycbx4pfMAy6IoK8ZWj9_Rw9oPCj5zsk3sLradLnZtYCUwrt5ayTrmyHfhKBAfQO64E6As/exec';
+
+// ══════════════════════════════════════════════════════
+//  MUNICIPIOS
+// ══════════════════════════════════════════════════════
+const municipios = [
+  { name:"Arroyo Naranjo",   lat:23.0281, lng:-82.3534 },
+  { name:"Boyeros",          lat:22.9904, lng:-82.4120 },
+  { name:"Centro Habana",    lat:23.1360, lng:-82.3710 },
+  { name:"Cerro",            lat:23.1120, lng:-82.3762 },
+  { name:"Cotorro",          lat:23.0416, lng:-82.2671 },
+  { name:"Diez de Octubre",  lat:23.1101, lng:-82.3432 },
+  { name:"El Vedado",        lat:23.1322, lng:-82.4028 },
+  { name:"Guanabacoa",       lat:23.1170, lng:-82.2969 },
+  { name:"Habana del Este",  lat:23.1553, lng:-82.2583 },
+  { name:"Habana Vieja",     lat:23.1380, lng:-82.3590 },
+  { name:"La Lisa",          lat:23.0794, lng:-82.4597 },
+  { name:"Marianao",         lat:23.0874, lng:-82.4284 },
+  { name:"Playa",            lat:23.1248, lng:-82.4432 },
+  { name:"Plaza de la Rev.", lat:23.1254, lng:-82.3890 },
+  { name:"Regla",            lat:23.1328, lng:-82.3302 },
+  { name:"San Miguel P.",    lat:23.0617, lng:-82.3407 },
+];
+
+// Populate selects
+const selOrigin = document.getElementById('sel-origin');
+const selDest   = document.getElementById('sel-dest');
+[...municipios].sort((a,b)=>a.name.localeCompare(b.name)).forEach(m => {
+  [selOrigin, selDest].forEach(sel => {
+    const o = document.createElement('option');
+    o.value = m.name; o.textContent = m.name;
+    sel.appendChild(o);
+  });
+});
+
+// Set today as default date
+document.getElementById('f-fecha').value = new Date().toISOString().split('T')[0];
+
+
+// ══════════════════════════════════════════════════════
+//  HAVERSINE
+// ══════════════════════════════════════════════════════
+function haversine(lat1, lng1, lat2, lng2) {
+  const R    = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a    = Math.sin(dLat/2)**2 +
+               Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) *
+               Math.sin(dLng/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+// ══════════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════════
+
+
+// ══════════════════════════════════════════════════════
+//  HAVERSINE
+// ══════════════════════════════════════════════════════
+function haversine(lat1, lng1, lat2, lng2) {
+  const R    = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a    = Math.sin(dLat/2)**2 +
+               Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) *
+               Math.sin(dLng/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+// ══════════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════════
+let fondoMoneda = null; // 'CUP' | 'USD' | null
+
+function selectMoneda(moneda) {
+  fondoMoneda = moneda;
+  document.getElementById('btn-cup').classList.remove('active','active-usd');
+  document.getElementById('btn-usd').classList.remove('active','active-usd');
+  if (moneda === 'CUP') {
+    document.getElementById('btn-cup').classList.add('active');
+    document.getElementById('fondoSimbol').textContent = '$';
+  } else {
+    document.getElementById('btn-usd').classList.add('active-usd');
+    document.getElementById('fondoSimbol').textContent = '$';
+  }
+  document.getElementById('f-fondo-monto').focus();
+}
+
+function onFondoInput() {
+  // Auto-select CUP if no moneda selected yet
+  if (!fondoMoneda && document.getElementById('f-fondo-monto').value) {
+    selectMoneda('CUP');
+  }
+}
+
+let idaRegreso = false;
+
+function toggleIdaRegreso() {
+  idaRegreso = !idaRegreso;
+  const row   = document.getElementById('idaRegresoRow');
+  if (idaRegreso) row.classList.add('active');
+  else            row.classList.remove('active');
+}
+
+function getFondoData() {
+  const monto = parseFloat(document.getElementById('f-fondo-monto').value) || 0;
+  if (!monto || !fondoMoneda) return { fondo: false, fondoMonto: '0', fondoMoneda: '' };
+  return { fondo: true, fondoMonto: String(monto), fondoMoneda };
+}
+
+// ══════════════════════════════════════════════════════
+//  MUNICIPIO CHANGE
+// ══════════════════════════════════════════════════════
+function onMunicipioChange(field) {
+  const isOrigin   = field === 'origin';
+  const sel        = isOrigin ? selOrigin : selDest;
+  const addrRowId  = isOrigin ? 'addr-row-origin' : 'addr-row-dest';
+  const addrRow    = document.getElementById(addrRowId);
+  const addrInput  = document.getElementById(isOrigin ? 'addr-origin' : 'addr-dest');
+
+  // Reset address when municipio changes
+  addrInput.value = '';
+
+  if (sel.value) {
+    addrRow.classList.add('visible');
+  } else {
+    addrRow.classList.remove('visible');
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  SWAP
+// ══════════════════════════════════════════════════════
+function swapMunicipios() {
+  const tmpSel  = selOrigin.value;
+  const tmpAddr = document.getElementById('addr-origin').value;
+  selOrigin.value = selDest.value;
+  document.getElementById('addr-origin').value = document.getElementById('addr-dest').value;
+  selDest.value = tmpSel;
+  document.getElementById('addr-dest').value = tmpAddr;
+  onMunicipioChange('origin');
+  onMunicipioChange('destination');
+}
+
+// ══════════════════════════════════════════════════════
+//  HAVERSINE
+// ══════════════════════════════════════════════════════
+
+// ══════════════════════════════════════════════════════
+//  CALCULAR
+// ══════════════════════════════════════════════════════
+
+// ══════════════════════════════════════════════════════
+//  RESET CALC
+// ══════════════════════════════════════════════════════
+
+// ══════════════════════════════════════════════════════
+//  ENVIAR
+// ══════════════════════════════════════════════════════
+async function enviar() {
+  const nombre = document.getElementById('f-nombre').value.trim();
+  const tel    = document.getElementById('f-tel').value.trim();
+  const objeto = document.getElementById('f-objeto').value.trim();
+  const fecha  = document.getElementById('f-fecha').value;
+
+  if (!_cotizarData) { toast('Debes cotizar la mensajería antes de enviar la solicitud', 'error'); showTab('cotizar'); window.scrollTo({top:0,behavior:'smooth'}); return; }
+  if (!nombre) { toast('Ingresa tu nombre', 'error'); document.getElementById('f-nombre').focus(); return; }
+  if (!tel || !/^[0-9]{8}$/.test(tel)) { toast('El teléfono debe tener 8 dígitos', 'error'); document.getElementById('f-tel').focus(); return; }
+  if (!selOrigin.value) { toast('Selecciona el municipio de origen', 'error'); selOrigin.focus(); return; }
+  if (!document.getElementById('addr-origin').value.trim()) { toast('La dirección exacta de recogida es obligatoria', 'error'); document.getElementById('addr-origin').focus(); return; }
+  if (!selDest.value) { toast('Selecciona el municipio de destino', 'error'); selDest.focus(); return; }
+  if (!document.getElementById('addr-dest').value.trim()) { toast('La dirección exacta de entrega es obligatoria', 'error'); document.getElementById('addr-dest').focus(); return; }
+  if (!objeto) { toast('Describe qué se envía', 'error'); document.getElementById('f-objeto').focus(); return; }
+  if (!fecha)  { toast('Selecciona la fecha', 'error'); document.getElementById('f-fecha').focus(); return; }
+
+  const btn = document.getElementById('sendBtn');
+  btn.disabled = true;
+  btn.textContent = 'Enviando...';
+
+  try {
+    const payload = JSON.stringify({
+      nombre, telefono: tel,
+      origen:      selOrigin.value,
+      addrOrigen:  document.getElementById('addr-origin').value.trim(),
+      destino:     selDest.value,
+      addrDestino: document.getElementById('addr-dest').value.trim(),
+      objeto,
+      nota:        document.getElementById('f-nota').value.trim(),
+      distancia:   _cotizarData ? _cotizarData.dist  : '',
+      tarifa:      _cotizarData ? _cotizarData.price.replace(/\./g,'').replace(/,/g,'.') : '0',
+      tiempoEst:   _cotizarData ? _cotizarData.time  : '',
+      ...getFondoData(),
+      idaRegreso: idaRegreso === true,
+    });
+
+    await fetch(SHEETS_URL + '?action=createSolicitud&payload=' + encodeURIComponent(payload),
+      { redirect: 'follow' });
+
+    // Show success
+    document.getElementById('successCard').classList.add('visible');
+    document.getElementById('successCard').scrollIntoView({ behavior:'smooth', block:'center' });
+
+  } catch(e) {
+    toast('Error de conexión. Intenta de nuevo.', 'error');
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9l20-7z"/></svg> Enviar solicitud';
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  NUEVA SOLICITUD
+// ══════════════════════════════════════════════════════
+function nuevaSolicitud() {
+  // ── Resetear cotizador ──
+  cSelOrigin.value = '';
+  cSelDest.value   = '';
+  cExactCoords     = { origin: null, destination: null };
+  document.getElementById('c-result').style.display = 'none';
+  document.getElementById('c-geo-status-origin').textContent      = '';
+  document.getElementById('c-geo-status-origin').className        = 'geo-status';
+  document.getElementById('c-geo-status-destination').textContent = '';
+  document.getElementById('c-geo-status-destination').className   = 'geo-status';
+
+  // ── Resetear formulario solicitar ──
+  selOrigin.value = '';
+  selDest.value   = '';
+  exactCoords     = { origin: null, destination: null };
+  ['addr-origin','addr-dest','f-nombre','f-tel','f-objeto','f-nota','f-fondo-monto'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('f-fecha').value = new Date().toISOString().split('T')[0];
+  document.getElementById('addr-row-origin').classList.remove('visible');
+  document.getElementById('addr-row-dest').classList.remove('visible');
+  document.getElementById('successCard').classList.remove('visible');
+  document.getElementById('cotizar-summary').style.display = 'none';
+  _cotizarData = null;
+
+  const btn = document.getElementById('sendBtn');
+  btn.disabled = false;
+  btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9l20-7z"/></svg> Enviar solicitud';
+
+  fondoMoneda = null;
+  idaRegreso  = false;
+  const irRow = document.getElementById('idaRegresoRow');
+  if (irRow) irRow.classList.remove('active');
+  document.getElementById('btn-cup').classList.remove('active','active-usd');
+  document.getElementById('btn-usd').classList.remove('active','active-usd');
+
+  // ── Ir a cotizar con campos limpios ──
+  document.getElementById('view-solicitar').style.display = 'none';
+  document.getElementById('view-cotizar').style.display   = '';
+  document.getElementById('tab-cotizar').classList.add('active');
+  document.getElementById('tab-solicitar').classList.remove('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+
+
+// ══════════════════════════════════════════════════════
+//  MAP STATE
+// ══════════════════════════════════════════════════════
+let mapActiveField   = null;
+let mapSelectedPoint = null;
+let leafletMap       = null;
+let leafletMarker    = null;
+const HABANA_CENTER  = [23.1136, -82.3666];
+
+// cotizar exact coords
+let cExactCoords = { origin: null, destination: null };
+let exactCoords  = { origin: null, destination: null };
+
+function openMapModal(field) {
+  mapActiveField = field;
+  mapSelectedPoint = null;
+  document.getElementById('mapConfirmBtn').disabled = true;
+  document.getElementById('mapSelectedInfo').innerHTML = '<span style="color:var(--ink-muted);font-size:12px;">Toca el mapa para seleccionar un punto</span>';
+  document.getElementById('mapSearchInput').value = '';
+  document.getElementById('mapModalTitle').textContent = '📍 Ubicación de ' + (field === 'origin' ? 'Origen' : 'Destino');
+  document.getElementById('mapModalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  // Determine center — handle both solicitar (origin/destination)
+  // and cotizar (c-origin/c-destination) field names
+  const selId  = field === 'c-origin' ? 'c-sel-origin'
+               : field === 'c-destination' ? 'c-sel-dest'
+               : field === 'origin' ? 'sel-origin'
+               : 'sel-dest';
+  const selEl  = document.getElementById(selId);
+  const selVal = selEl ? selEl.value : '';
+  const selMun = municipios.find(m => m.name === selVal);
+  const initCenter = selMun ? [selMun.lat, selMun.lng] : HABANA_CENTER;
+  const initZoom   = selMun ? 14 : 13;
+
+  setTimeout(() => {
+    if (!leafletMap) {
+      leafletMap = L.map('mapContainer', { zoomControl: true }).setView(initCenter, initZoom);
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '© OpenStreetMap © CARTO',
+        subdomains: 'abcd',
+        maxZoom: 19
+      }).addTo(leafletMap);
+      leafletMap.on('click', onMapClick);
+    } else {
+      leafletMap.invalidateSize();
+      leafletMap.setView(initCenter, initZoom);
+      if (leafletMarker) { leafletMap.removeLayer(leafletMarker); leafletMarker = null; }
+    }
+
+    // Restore marker if field already has exact coords
+    const prevCoords = (field.startsWith('c-') ? cExactCoords : exactCoords || {})[
+      field === 'c-origin' ? 'origin' : field === 'c-destination' ? 'destination' : field
+    ];
+    if (prevCoords) {
+      placeMarker(prevCoords.lat, prevCoords.lng);
+      leafletMap.setView([prevCoords.lat, prevCoords.lng], 16);
+    }
+  }, 80);
+}
+function closeMapModal() {
+  document.getElementById('mapModalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+  // Reset paste panel
+  const panel = document.getElementById('pasteLocationPanel');
+  if (panel) panel.style.display = 'none';
+  const btn = document.getElementById('pasteToggleBtn');
+  if (btn) { btn.style.background = 'rgba(200,240,0,0.07)'; btn.style.borderColor = 'rgba(200,240,0,0.25)'; }
+  const inp = document.getElementById('pasteLocationInput');
+  if (inp) inp.value = '';
+  const err = document.getElementById('pasteLocationError');
+  if (err) err.style.display = 'none';
+}
+// confirmMapSelection defined below
+function setGeoStatus(field, type, msg) {
+  const el = document.getElementById('geo-status-' + field);
+  el.className = 'geo-status' + (type ? ' ' + type : '');
+  el.textContent = msg;
+}
+function nearestMunicipio(lat, lng) {
+  let best = null, bestDist = Infinity;
+  municipios.forEach(m => {
+    const d = haversine(lat, lng, m.lat, m.lng);
+    if (d < bestDist) { bestDist = d; best = m; }
+  });
+  return best;
+}
+function useGeolocation(field) {
+  if (!navigator.geolocation) {
+    setGeoStatus(field, 'err', 'GPS no disponible en este navegador');
+    return;
+  }
+
+  const btn = document.getElementById('geo-btn-' + field);
+
+  // Check permission state first if available
+  if (navigator.permissions) {
+    navigator.permissions.query({ name: 'geolocation' }).then(result => {
+      if (result.state === 'denied') {
+        showGeoDeniedMsg(field);
+        return;
+      }
+      doGetPosition(field, btn);
+    }).catch(() => {
+      doGetPosition(field, btn);
+    });
+  } else {
+    doGetPosition(field, btn);
+  }
+}
+function showGeoDeniedMsg(field) {
+  const label = field === 'origin' ? 'origen' : 'destino';
+  const el = document.getElementById('geo-status-' + field);
+  el.className = 'geo-status err';
+  el.innerHTML = '⚠ Permiso denegado — activa la ubicación en ajustes del navegador o selecciona el municipio de ' + label + ' manualmente';
+  el.style.maxWidth = '260px';
+  el.style.lineHeight = '1.4';
+  el.style.whiteSpace = 'normal';
+}
+function reverseGeocode(lat, lng) {
+  document.getElementById('mapSelectedInfo').innerHTML = '<span style="color:var(--ink-muted);font-size:12px;">Obteniendo dirección...</span>';
+  document.getElementById('mapConfirmBtn').disabled = true;
+
+  fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=es`)
+    .then(r => r.json())
+    .then(data => {
+      const addr = data.address || {};
+      const road   = addr.road || addr.pedestrian || addr.footway || '';
+      const num    = addr.house_number || '';
+      const suburb = addr.suburb || addr.neighbourhood || addr.quarter || '';
+      const parts  = [road, num].filter(Boolean).join(' ');
+      const display = parts || data.display_name.split(',')[0];
+      const municipio = nearestMunicipio(lat, lng);
+
+      mapSelectedPoint = { lat, lng, address: display + (suburb ? ', ' + suburb : ''), municipio: municipio.name };
+
+      document.getElementById('mapSelectedInfo').innerHTML =
+        '<strong>' + municipio.name + '</strong>' + (display ? display : '');
+      document.getElementById('mapConfirmBtn').disabled = false;
+    })
+    .catch(() => {
+      const municipio = nearestMunicipio(lat, lng);
+      mapSelectedPoint = { lat, lng, address: lat.toFixed(5) + ', ' + lng.toFixed(5), municipio: municipio.name };
+      document.getElementById('mapSelectedInfo').innerHTML = '<strong>' + municipio.name + '</strong>Coordenadas: ' + lat.toFixed(4) + ', ' + lng.toFixed(4);
+      document.getElementById('mapConfirmBtn').disabled = false;
+    });
+}
+function useGpsInMap() {
+  const btn = document.getElementById('mapGpsBtn');
+  if (!navigator.geolocation) {
+    document.getElementById('mapSelectedInfo').innerHTML = '<span style="color:var(--accent);font-size:12px;">GPS no disponible en este navegador</span>';
+    return;
+  }
+  btn.classList.add('loading');
+  btn.innerHTML = btn.innerHTML.replace('Mi ubicación', 'Localizando...');
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      btn.classList.remove('loading');
+      btn.innerHTML = btn.innerHTML.replace('Localizando...', 'Mi ubicación');
+      const { latitude: lat, longitude: lng } = pos.coords;
+      const inH = lat >= HABANA_BOUNDS.latMin && lat <= HABANA_BOUNDS.latMax
+               && lng >= HABANA_BOUNDS.lngMin && lng <= HABANA_BOUNDS.lngMax;
+      if (!inH) {
+        document.getElementById('mapSelectedInfo').innerHTML = '<span style="color:var(--accent);font-size:12px;">⚠ Tu ubicación está fuera de La Habana</span>';
+        return;
+      }
+      leafletMap.setView([lat, lng], 17);
+      placeMarker(lat, lng);
+    },
+    err => {
+      btn.classList.remove('loading');
+      btn.innerHTML = btn.innerHTML.replace('Localizando...', 'Mi ubicación');
+      const msg = err.code === 1 ? 'Permiso de ubicación denegado' : 'No se pudo obtener la posición';
+      document.getElementById('mapSelectedInfo').innerHTML = '<span style="color:var(--accent);font-size:12px;">⚠ ' + msg + '</span>';
+    },
+    { timeout: 10000, maximumAge: 30000 }
+  );
+}
+function onMapClick(e) {
+  placeMarker(e.latlng.lat, e.latlng.lng);
+}
+function searchMapAddress() {
+  const q = document.getElementById('mapSearchInput').value.trim();
+  if (!q) return;
+  const query = q + ', La Habana, Cuba';
+  fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1&accept-language=es`)
+    .then(r => r.json())
+    .then(results => {
+      if (!results.length) { alert('No se encontró esa dirección. Prueba con más detalles.'); return; }
+      const { lat, lon } = results[0];
+      const latF = parseFloat(lat), lngF = parseFloat(lon);
+      leafletMap.setView([latF, lngF], 17);
+      placeMarker(latF, lngF);
+    })
+    .catch(() => alert('Error al buscar. Verifica tu conexión.'));
+}
+
+
+// ── placeMarker ───────────────────────────────────────────────
+function placeMarker(lat, lng) {
+  if (leafletMarker) {
+    leafletMarker.setLatLng([lat, lng]);
+  } else {
+    leafletMarker = L.marker([lat, lng], { draggable: true }).addTo(leafletMap);
+    leafletMarker.on('dragend', e => {
+      const p = e.target.getLatLng();
+      reverseGeocode(p.lat, p.lng);
+    });
+  }
+  const hint = document.getElementById('mapPinHint');
+  if (hint) hint.style.display = 'none';
+  reverseGeocode(lat, lng);
+}
+
+// ── reverseGeocode ────────────────────────────────────────────
+function reverseGeocode(lat, lng) {
+  document.getElementById('mapSelectedInfo').innerHTML = '<span style="color:var(--muted);font-size:12px;">Obteniendo dirección...</span>';
+  document.getElementById('mapConfirmBtn').disabled = true;
+  fetch('https://nominatim.openstreetmap.org/reverse?lat=' + lat + '&lon=' + lng + '&format=json&accept-language=es')
+    .then(r => r.json())
+    .then(data => {
+      const addr    = data.address || {};
+      const road    = addr.road || addr.pedestrian || addr.footway || '';
+      const num     = addr.house_number || '';
+      const suburb  = addr.suburb || addr.neighbourhood || addr.quarter || '';
+      const parts   = [road, num].filter(Boolean).join(' ');
+      const display = parts || data.display_name.split(',')[0];
+      const municipio = nearestMunicipio(lat, lng);
+      mapSelectedPoint = { lat, lng, address: display + (suburb ? ', ' + suburb : ''), municipio: municipio.name };
+      document.getElementById('mapSelectedInfo').innerHTML =
+        '<strong>' + municipio.name + '</strong>' + (display ? ' · ' + display : '');
+      document.getElementById('mapConfirmBtn').disabled = false;
+    })
+    .catch(() => {
+      const municipio = nearestMunicipio(lat, lng);
+      mapSelectedPoint = { lat, lng, address: lat.toFixed(5) + ', ' + lng.toFixed(5), municipio: municipio.name };
+      document.getElementById('mapSelectedInfo').innerHTML = '<strong>' + municipio.name + '</strong>';
+      document.getElementById('mapConfirmBtn').disabled = false;
+    });
+}
+
+// ── searchMapAddress ──────────────────────────────────────────
+function searchMapAddress() {
+  const q = document.getElementById('mapSearchInput').value.trim();
+  if (!q) return;
+  fetch('https://nominatim.openstreetmap.org/search?q=' + encodeURIComponent(q + ', La Habana, Cuba') + '&format=json&limit=1&accept-language=es')
+    .then(r => r.json())
+    .then(results => {
+      if (!results.length) { toast('No se encontró esa dirección', 'error'); return; }
+      const latF = parseFloat(results[0].lat);
+      const lngF = parseFloat(results[0].lon);
+      leafletMap.setView([latF, lngF], 17);
+      placeMarker(latF, lngF);
+    })
+    .catch(() => toast('Error al buscar dirección', 'error'));
+}
+
+// ── useGpsInMap ───────────────────────────────────────────────
+function useGpsInMap() {
+  const btn = document.getElementById('mapGpsBtn');
+  if (!navigator.geolocation) {
+    document.getElementById('mapSelectedInfo').innerHTML = '<span style="color:var(--red);font-size:12px;">GPS no disponible</span>';
+    return;
+  }
+  if (btn) { btn.textContent = 'Localizando...'; }
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      if (btn) { btn.textContent = 'Mi ubicación'; }
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+      leafletMap.setView([lat, lng], 17);
+      placeMarker(lat, lng);
+    },
+    err => {
+      if (btn) { btn.textContent = 'Mi ubicación'; }
+      const msg = err.code === 1 ? 'Permiso denegado' : 'No se pudo obtener posición';
+      document.getElementById('mapSelectedInfo').innerHTML = '<span style="color:var(--red);font-size:12px;">⚠ ' + msg + '</span>';
+    },
+    { timeout: 10000 }
+  );
+}
+
+// ══════════════════════════════════════════════════════
+//  COTIZAR — GEO & MAP INTEGRATION
+// ══════════════════════════════════════════════════════
+
+function onCotizarMunicipioChange(field) {
+  cExactCoords[field] = null;
+  const statusId = field === 'origin' ? 'c-geo-status-origin' : 'c-geo-status-destination';
+  document.getElementById(statusId).textContent = '';
+  document.getElementById(statusId).className = 'geo-status';
+  onCotizarChange();
+}
+
+function cSetGeoStatus(field, type, msg) {
+  const id = field === 'origin' ? 'c-geo-status-origin' : 'c-geo-status-destination';
+  const el = document.getElementById(id);
+  el.className = 'geo-status' + (type ? ' ' + type : '');
+  el.textContent = msg;
+}
+
+function cGeoLocate(field) {
+  if (!navigator.geolocation) {
+    cSetGeoStatus(field, 'err', '✕ Geolocalización no disponible');
+    return;
+  }
+  cSetGeoStatus(field, 'spin', '⏳ Obteniendo ubicación...');
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+      const nearest = nearestMunicipio(lat, lng);
+      const sel = field === 'origin' ? cSelOrigin : cSelDest;
+      sel.value = nearest.name;
+      cExactCoords[field] = { lat, lng };
+      cSetGeoStatus(field, 'ok', '✓ Ubicación detectada: ' + nearest.name);
+      onCotizarChange();
+    },
+    err => {
+      cSetGeoStatus(field, 'err', '✕ No se pudo obtener ubicación');
+    },
+    { enableHighAccuracy: true, timeout: 8000 }
+  );
+}
+
+// ── confirmMapSelection (única, maneja cotizar y solicitar) ──
+function confirmMapSelection() {
+  if (!mapSelectedPoint || !mapActiveField) return;
+  const { municipio, address, lat, lng } = mapSelectedPoint;
+
+  // ── Campos del cotizador (c-origin / c-destination) ──
+  if (mapActiveField === 'c-origin' || mapActiveField === 'c-destination') {
+    const field = mapActiveField === 'c-origin' ? 'origin' : 'destination';
+    const sel   = field === 'origin' ? cSelOrigin : cSelDest;
+    sel.value   = municipio;
+    cExactCoords[field] = { lat, lng };
+    cSetGeoStatus(field, 'ok', '\u2713 Punto exacto: ' + municipio + ' \u00b7 ' + address);
+    closeMapModal();
+    // Recalcular si ya hay ambos puntos
+    if (cExactCoords.origin && cExactCoords.destination) {
+      cotizar();
+    } else {
+      onCotizarChange();
+    }
+    return;
+  }
+
+  // ── Campos del formulario solicitar (origin / destination) ──
+  exactCoords[mapActiveField] = { lat, lng };
+  const selId = mapActiveField === 'origin' ? 'sel-origin' : 'sel-dest';
+  const sel   = document.getElementById(selId);
+  if (sel) { sel.value = municipio; onMunicipioChange(mapActiveField); }
+  const addrId = mapActiveField === 'origin' ? 'addr-origin' : 'addr-dest';
+  const addrEl = document.getElementById(addrId);
+  if (addrEl) { addrEl.value = address; addrEl.classList.remove('error'); }
+  closeMapModal();
+}
+
+// ══════════════════════════════════════════════════════
+//  TAB SWITCH
+// ══════════════════════════════════════════════════════
+function showTab(tab) {
+  if (tab === 'solicitar' && !_cotizarData) {
+    toast('Primero cotiza la mensajería para poder solicitar el envío', 'info');
+    return;
+  }
+  document.getElementById('view-solicitar').style.display = tab === 'solicitar' ? '' : 'none';
+  document.getElementById('view-cotizar').style.display   = tab === 'cotizar'   ? '' : 'none';
+  document.getElementById('tab-solicitar').classList.toggle('active', tab === 'solicitar');
+  document.getElementById('tab-cotizar').classList.toggle('active',   tab === 'cotizar');
+}
+
+// ══════════════════════════════════════════════════════
+//  COTIZAR — populate selects
+// ══════════════════════════════════════════════════════
+const cSelOrigin = document.getElementById('c-sel-origin');
+const cSelDest   = document.getElementById('c-sel-dest');
+[...municipios].sort((a,b)=>a.name.localeCompare(b.name)).forEach(m => {
+  [cSelOrigin, cSelDest].forEach(sel => {
+    const o = document.createElement('option');
+    o.value = m.name; o.textContent = m.name;
+    sel.appendChild(o);
+  });
+});
+
+function onCotizarChange() {
+  document.getElementById('c-result').style.display = 'none';
+}
+
+function swapCotizar() {
+  const tmp = cSelOrigin.value;
+  cSelOrigin.value = cSelDest.value;
+  cSelDest.value   = tmp;
+  onCotizarChange();
+}
+
+// Resultado de cotizar — usado en solicitud y en irASolicitar
+let _cotizarData = null;
+
+function cotizar() {
+  const oName = cSelOrigin.value;
+  const dName = cSelDest.value;
+  if (!oName || !dName) { toast('Selecciona origen y destino', 'error'); return; }
+
+  const hasExactBoth = !!(cExactCoords.origin && cExactCoords.destination);
+
+  // Mismo municipio: solo permitir si hay coordenadas exactas distintas
+  if (oName === dName) {
+    if (!hasExactBoth) {
+      toast('Marca los puntos exactos en el mapa para envíos dentro del mismo municipio', 'info');
+      return;
+    }
+    const samePt = cExactCoords.origin.lat === cExactCoords.destination.lat
+                && cExactCoords.origin.lng === cExactCoords.destination.lng;
+    if (samePt) { toast('El punto de origen y destino son el mismo', 'error'); return; }
+  }
+
+  const oMun = municipios.find(m => m.name === oName);
+  const dMun = municipios.find(m => m.name === dName);
+
+  // Prioridad: coordenadas exactas del mapa; si no, centroide del municipio
+  const oLat = cExactCoords.origin      ? cExactCoords.origin.lat      : oMun.lat;
+  const oLng = cExactCoords.origin      ? cExactCoords.origin.lng      : oMun.lng;
+  const dLat = cExactCoords.destination ? cExactCoords.destination.lat : dMun.lat;
+  const dLng = cExactCoords.destination ? cExactCoords.destination.lng : dMun.lng;
+
+  const distLineal = haversine(oLat, oLng, dLat, dLng);
+  const dist       = distLineal * 1.30;
+  const tarifa     = Math.round(200 * dist + 150);
+  const tiempo     = Math.round((dist / 25) * 60);
+
+  document.getElementById('c-dist').textContent  = dist.toFixed(1);
+  document.getElementById('c-time').textContent  = tiempo;
+  document.getElementById('c-price').textContent = tarifa.toLocaleString('es-CU');
+
+  // Guardar resultado para usarlo en la solicitud
+  _cotizarData = {
+    dist:  dist.toFixed(1),
+    time:  String(tiempo),
+    price: tarifa.toLocaleString('es-CU'),
+  };
+
+  const res = document.getElementById('c-result');
+  res.style.display = 'block';
+  res.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function irASolicitar() {
+  // Pre-fill origin/dest in solicitar form
+  const o = cSelOrigin.value;
+  const d = cSelDest.value;
+  if (o) { selOrigin.value = o; onMunicipioChange('origin'); }
+  if (d) { selDest.value   = d; onMunicipioChange('destination'); }
+
+  // Populate & show the cotizar summary banner
+  const dist  = document.getElementById('c-dist').textContent;
+  const time  = document.getElementById('c-time').textContent;
+  const price = document.getElementById('c-price').textContent;
+
+  _cotizarData = { dist, time, price };
+
+  document.getElementById('sum-origin').textContent = o || '—';
+  document.getElementById('sum-dest').textContent   = d || '—';
+  document.getElementById('sum-dist').textContent   = dist;
+  document.getElementById('sum-time').textContent   = time;
+  document.getElementById('sum-price').textContent  = price;
+  document.getElementById('cotizar-summary').style.display = 'block';
+
+  showTab('solicitar');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+
+// ══════════════════════════════════════════════════════
+//  PEGAR UBICACIÓN (desde mapa modal)
+// ══════════════════════════════════════════════════════
+function togglePastePanel() {
+  const panel = document.getElementById('pasteLocationPanel');
+  const btn   = document.getElementById('pasteToggleBtn');
+  const open  = panel.style.display === 'none' || panel.style.display === '';
+  panel.style.display = open ? 'block' : 'none';
+  btn.style.background  = open ? 'rgba(200,240,0,0.18)' : 'rgba(200,240,0,0.07)';
+  btn.style.borderColor = open ? 'var(--neon)' : 'rgba(200,240,0,0.25)';
+  if (open) {
+    document.getElementById('pasteLocationInput').value = '';
+    document.getElementById('pasteLocationError').style.display = 'none';
+    setTimeout(() => document.getElementById('pasteLocationInput').focus(), 60);
+  }
+}
+
+function parsePastedLocation() {
+  const raw   = document.getElementById('pasteLocationInput').value.trim();
+  const errEl = document.getElementById('pasteLocationError');
+  errEl.style.display = 'none';
+
+  if (!raw) {
+    errEl.textContent = 'Pega un enlace o coordenadas primero.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  let lat = null, lng = null;
+
+  // 1. Coordenadas crudas "23.1360, -82.3710" o "23.1360 -82.3710"
+  const rawCoords = raw.match(/^(-?\d{1,3}\.\d+)[,\s]+(-?\d{1,3}\.\d+)$/);
+  if (rawCoords) { lat = parseFloat(rawCoords[1]); lng = parseFloat(rawCoords[2]); }
+
+  // 2. @LAT,LNG (Google Maps embed / share)
+  if (lat === null) {
+    const m = raw.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+    if (m) { lat = parseFloat(m[1]); lng = parseFloat(m[2]); }
+  }
+
+  // 3. ?q=LAT,LNG o &q=LAT,LNG
+  if (lat === null) {
+    const m = raw.match(/[?&]q=(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+    if (m) { lat = parseFloat(m[1]); lng = parseFloat(m[2]); }
+  }
+
+  // 4. ll=LAT,LNG
+  if (lat === null) {
+    const m = raw.match(/[?&]ll=(-?\d+\.\d+),(-?\d+\.\d+)/);
+    if (m) { lat = parseFloat(m[1]); lng = parseFloat(m[2]); }
+  }
+
+  // 5. /place/.../@LAT,LNG,ZOOMz
+  if (lat === null) {
+    const m = raw.match(/@(-?\d+\.\d+),(-?\d+\.\d+),\d/);
+    if (m) { lat = parseFloat(m[1]); lng = parseFloat(m[2]); }
+  }
+
+  // 6. geo:LAT,LNG (WhatsApp nativo)
+  if (lat === null) {
+    const m = raw.match(/geo:(-?\d+\.\d+),(-?\d+\.\d+)/);
+    if (m) { lat = parseFloat(m[1]); lng = parseFloat(m[2]); }
+  }
+
+  // 7. Apple Maps: maps.apple.com/?ll=LAT,LNG
+  if (lat === null) {
+    const m = raw.match(/maps\.apple\.com.*[?&](?:ll|q)=(-?\d+\.\d+),(-?\d+\.\d+)/);
+    if (m) { lat = parseFloat(m[1]); lng = parseFloat(m[2]); }
+  }
+
+  // 8. Waze: waze.com/ul?ll=LAT,LNG
+  if (lat === null) {
+    const m = raw.match(/waze\.com.*[?&]ll=(-?\d+\.\d+),(-?\d+\.\d+)/);
+    if (m) { lat = parseFloat(m[1]); lng = parseFloat(m[2]); }
+  }
+
+  // 9. Enlace corto (maps.app.goo.gl / goo.gl) — no se puede resolver sin fetch
+  if (lat === null && /maps\.app\.goo\.gl|goo\.gl\/maps/.test(raw)) {
+    errEl.innerHTML = '⚠ Enlace corto detectado. Ábrelo en el navegador, copia la URL completa de la barra de dirección y pégala aquí.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  // 10. Fallback: dos decimales consecutivos con 4+ dígitos
+  if (lat === null) {
+    const m = raw.match(/(-?\d{1,3}\.\d{4,})[,\s%2C]+(-?\d{1,3}\.\d{4,})/);
+    if (m) { lat = parseFloat(m[1]); lng = parseFloat(m[2]); }
+  }
+
+  if (lat === null || isNaN(lat) || isNaN(lng)) {
+    errEl.textContent = 'No se encontraron coordenadas. Prueba copiando la URL completa o escribe las coordenadas directamente (ej: 23.1360, -82.3710).';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  // Validar que esté dentro de Cuba (bounds amplios)
+  if (lat < 19.5 || lat > 23.5 || lng < -85 || lng > -74) {
+    errEl.textContent = `Coordenadas fuera de Cuba (${lat.toFixed(4)}, ${lng.toFixed(4)}). Verifica el enlace.`;
+    errEl.style.display = 'block';
+    return;
+  }
+
+  // Éxito: colocar marcador y centrar mapa
+  document.getElementById('pasteLocationPanel').style.display = 'none';
+  document.getElementById('pasteToggleBtn').style.background  = 'rgba(200,240,0,0.07)';
+  document.getElementById('pasteToggleBtn').style.borderColor = 'rgba(200,240,0,0.25)';
+  document.getElementById('pasteLocationInput').value = '';
+  if (leafletMap) leafletMap.setView([lat, lng], 17);
+  placeMarker(lat, lng);
+}
+
+// ══════════════════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════════════════
+let _tt;
+function toast(msg, type='info') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'show ' + type;
+  clearTimeout(_tt);
+  _tt = setTimeout(() => { el.className = ''; }, 3000);
+}
+</script>
+</body>
+</html>
