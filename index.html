@@ -876,17 +876,18 @@ nav {
 
     <!-- ORIGEN -->
     <div class="field">
-      <label class="label">Municipio origen</label>
+      <label class="label">Municipio origen <span style="color:var(--red)">*</span></label>
       <select class="select" id="c-sel-origin" onchange="onCotizarMunicipioChange('origin')">
         <option value="">Selecciona...</option>
       </select>
       <div style="display:flex;gap:8px;margin-top:8px;">
-        <button class="geo-btn" onclick="openMapModal('c-origin')">
-          📍 Marcar en el mapa
+        <button class="geo-btn" id="c-map-btn-origin" onclick="openMapModal('c-origin')"
+          style="border-color:rgba(255,68,102,0.4);color:var(--red);">
+          📍 Marcar en el mapa <span style="font-size:10px;">(obligatorio)</span>
         </button>
       </div>
       <div class="geo-status-row">
-        <span class="geo-status" id="c-geo-status-origin"></span>
+        <span class="geo-status" id="c-geo-status-origin">⚠ Debes marcar la posición exacta en el mapa</span>
       </div>
     </div>
 
@@ -894,17 +895,18 @@ nav {
 
     <!-- DESTINO -->
     <div class="field">
-      <label class="label">Municipio destino</label>
+      <label class="label">Municipio destino <span style="color:var(--red)">*</span></label>
       <select class="select" id="c-sel-dest" onchange="onCotizarMunicipioChange('destination')">
         <option value="">Selecciona...</option>
       </select>
       <div style="display:flex;gap:8px;margin-top:8px;">
-        <button class="geo-btn" onclick="openMapModal('c-destination')">
-          📍 Marcar en el mapa
+        <button class="geo-btn" id="c-map-btn-destination" onclick="openMapModal('c-destination')"
+          style="border-color:rgba(255,68,102,0.4);color:var(--red);">
+          📍 Marcar en el mapa <span style="font-size:10px;">(obligatorio)</span>
         </button>
       </div>
       <div class="geo-status-row">
-        <span class="geo-status" id="c-geo-status-destination"></span>
+        <span class="geo-status" id="c-geo-status-destination">⚠ Debes marcar la posición exacta en el mapa</span>
       </div>
     </div>
 
@@ -1182,7 +1184,6 @@ async function enviar() {
   const objeto = document.getElementById('f-objeto').value.trim();
   const fecha  = document.getElementById('f-fecha').value;
 
-  if (!_cotizarData) { toast('Debes cotizar la mensajería antes de enviar la solicitud', 'error'); showTab('cotizar'); window.scrollTo({top:0,behavior:'smooth'}); return; }
   if (!nombre) { toast('Ingresa tu nombre', 'error'); document.getElementById('f-nombre').focus(); return; }
   if (!tel || !/^[0-9]{8}$/.test(tel)) { toast('El teléfono debe tener 8 dígitos', 'error'); document.getElementById('f-tel').focus(); return; }
   if (!selOrigin.value) { toast('Selecciona el municipio de origen', 'error'); selOrigin.focus(); return; }
@@ -1235,10 +1236,19 @@ function nuevaSolicitud() {
   cSelDest.value   = '';
   cExactCoords     = { origin: null, destination: null };
   document.getElementById('c-result').style.display = 'none';
-  document.getElementById('c-geo-status-origin').textContent      = '';
+  document.getElementById('c-geo-status-origin').textContent      = '⚠ Debes marcar la posición exacta en el mapa';
   document.getElementById('c-geo-status-origin').className        = 'geo-status';
-  document.getElementById('c-geo-status-destination').textContent = '';
+  document.getElementById('c-geo-status-destination').textContent = '⚠ Debes marcar la posición exacta en el mapa';
   document.getElementById('c-geo-status-destination').className   = 'geo-status';
+  // Resetear botones del mapa a rojo
+  ['c-map-btn-origin','c-map-btn-destination'].forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) {
+      btn.style.borderColor = 'rgba(255,68,102,0.4)';
+      btn.style.color = 'var(--red)';
+      btn.innerHTML = '📍 Marcar en el mapa <span style="font-size:10px;">(obligatorio)</span>';
+    }
+  });
 
   // ── Resetear formulario solicitar ──
   selOrigin.value = '';
@@ -1564,8 +1574,16 @@ function useGpsInMap() {
 function onCotizarMunicipioChange(field) {
   cExactCoords[field] = null;
   const statusId = field === 'origin' ? 'c-geo-status-origin' : 'c-geo-status-destination';
-  document.getElementById(statusId).textContent = '';
+  document.getElementById(statusId).textContent = '⚠ Debes marcar la posición exacta en el mapa';
   document.getElementById(statusId).className = 'geo-status';
+  // Resetear botón del mapa a rojo
+  const btnId = field === 'origin' ? 'c-map-btn-origin' : 'c-map-btn-destination';
+  const mapBtn = document.getElementById(btnId);
+  if (mapBtn) {
+    mapBtn.style.borderColor = 'rgba(255,68,102,0.4)';
+    mapBtn.style.color = 'var(--red)';
+    mapBtn.innerHTML = '📍 Marcar en el mapa <span style="font-size:10px;">(obligatorio)</span>';
+  }
   onCotizarChange();
 }
 
@@ -1612,6 +1630,14 @@ function confirmMapSelection() {
     sel.value   = municipio;
     cExactCoords[field] = { lat, lng };
     cSetGeoStatus(field, 'ok', '\u2713 Punto exacto: ' + municipio + ' \u00b7 ' + address);
+    // Actualizar estilo del botón del mapa a verde (confirmado)
+    const btnId = field === 'origin' ? 'c-map-btn-origin' : 'c-map-btn-destination';
+    const mapBtn = document.getElementById(btnId);
+    if (mapBtn) {
+      mapBtn.style.borderColor = 'var(--green)';
+      mapBtn.style.color = 'var(--green)';
+      mapBtn.innerHTML = '✅ Posición marcada <span style="font-size:10px;">(toca para cambiar)</span>';
+    }
     closeMapModal();
     // Recalcular si ya hay ambos puntos
     if (cExactCoords.origin && cExactCoords.destination) {
@@ -1637,14 +1663,14 @@ function confirmMapSelection() {
 //  TAB SWITCH
 // ══════════════════════════════════════════════════════
 function showTab(tab) {
-  if (tab === 'solicitar' && !_cotizarData) {
-    toast('Primero cotiza la mensajería para poder solicitar el envío', 'info');
-    return;
-  }
   document.getElementById('view-solicitar').style.display = tab === 'solicitar' ? '' : 'none';
   document.getElementById('view-cotizar').style.display   = tab === 'cotizar'   ? '' : 'none';
   document.getElementById('tab-solicitar').classList.toggle('active', tab === 'solicitar');
   document.getElementById('tab-cotizar').classList.toggle('active',   tab === 'cotizar');
+  // Si se va a solicitar directamente (sin cotizar), ocultar el resumen
+  if (tab === 'solicitar' && !_cotizarData) {
+    document.getElementById('cotizar-summary').style.display = 'none';
+  }
 }
 
 // ══════════════════════════════════════════════════════
@@ -1677,29 +1703,35 @@ let _cotizarData = null;
 function cotizar() {
   const oName = cSelOrigin.value;
   const dName = cSelDest.value;
-  if (!oName || !dName) { toast('Selecciona origen y destino', 'error'); return; }
+  if (!oName) { toast('Selecciona el municipio de origen', 'error'); return; }
+  if (!dName) { toast('Selecciona el municipio de destino', 'error'); return; }
 
-  const hasExactBoth = !!(cExactCoords.origin && cExactCoords.destination);
+  // Marcar en mapa es OBLIGATORIO para ambos puntos
+  if (!cExactCoords.origin) {
+    toast('Debes marcar la posición exacta de ORIGEN en el mapa', 'error');
+    // Resaltar botón de mapa
+    const btn = document.getElementById('c-map-btn-origin');
+    if (btn) { btn.style.boxShadow = '0 0 0 2px var(--red)'; setTimeout(()=>btn.style.boxShadow='',2000); }
+    return;
+  }
+  if (!cExactCoords.destination) {
+    toast('Debes marcar la posición exacta de DESTINO en el mapa', 'error');
+    const btn = document.getElementById('c-map-btn-destination');
+    if (btn) { btn.style.boxShadow = '0 0 0 2px var(--red)'; setTimeout(()=>btn.style.boxShadow='',2000); }
+    return;
+  }
 
-  // Mismo municipio: solo permitir si hay coordenadas exactas distintas
+  // Mismo municipio: verificar puntos distintos
   if (oName === dName) {
-    if (!hasExactBoth) {
-      toast('Marca los puntos exactos en el mapa para envíos dentro del mismo municipio', 'info');
-      return;
-    }
     const samePt = cExactCoords.origin.lat === cExactCoords.destination.lat
                 && cExactCoords.origin.lng === cExactCoords.destination.lng;
     if (samePt) { toast('El punto de origen y destino son el mismo', 'error'); return; }
   }
 
-  const oMun = municipios.find(m => m.name === oName);
-  const dMun = municipios.find(m => m.name === dName);
-
-  // Prioridad: coordenadas exactas del mapa; si no, centroide del municipio
-  const oLat = cExactCoords.origin      ? cExactCoords.origin.lat      : oMun.lat;
-  const oLng = cExactCoords.origin      ? cExactCoords.origin.lng      : oMun.lng;
-  const dLat = cExactCoords.destination ? cExactCoords.destination.lat : dMun.lat;
-  const dLng = cExactCoords.destination ? cExactCoords.destination.lng : dMun.lng;
+  const oLat = cExactCoords.origin.lat;
+  const oLng = cExactCoords.origin.lng;
+  const dLat = cExactCoords.destination.lat;
+  const dLng = cExactCoords.destination.lng;
 
   const distLineal = haversine(oLat, oLng, dLat, dLng);
   const dist       = distLineal * 1.30;
